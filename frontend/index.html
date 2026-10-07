@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Document HTML Validator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Document ↔ HTML Validator</h1>
+
+        <p class="description">
+            Upload a document and an HTML file to compare their contents.
+        </p>
+
+        <div class="upload-container">
+
+            <!-- Document Upload -->
+            <div class="upload-box">
+
+                <h2>📄 Document</h2>
+
+                <p>
+                    Upload PDF or DOCX file
+                </p>
+
+                <input
+                    type="file"
+                    id="documentFile"
+                    accept=".pdf,.docx"
+                >
+
+            </div>
+
+
+            <!-- HTML Upload -->
+            <div class="upload-box">
+
+                <h2>🌐 HTML File</h2>
+
+                <p>
+                    Upload HTML file
+                </p>
+
+                <input
+                    type="file"
+                    id="htmlFile"
+                    accept=".html,.htm"
+                >
+
+            </div>
+
+        </div>
+
+
+        <button type="button" id="validateButton">Validate Content</button>
+
+
+<div id="result"></div>
+
+<button
+    id="doneButton"
+    type="button"
+    style="
+        display:none;
+        margin-top:20px;
+        padding:12px 30px;
+        border:none;
+        border-radius:6px;
+        background:#222;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+    "
+>
+    Done
+</button>
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
