@@ -1,9 +1,8 @@
-const fs = require("fs");
 const cheerio = require("cheerio");
 
-async function parseHTML(filePath) {
+async function parseHTML(buffer) {
 
-    const html = fs.readFileSync(filePath, "utf8");
+    const html = buffer.toString("utf8");
 
     const $ = cheerio.load(html);
 

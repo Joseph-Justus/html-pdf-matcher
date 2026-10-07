@@ -1,35 +1,19 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const serverless = require("serverless-http");
 
 const { parseDocument } = require("../../backend/utils/documentParser");
 const { parseHTML } = require("../../backend/utils/htmlParser");
 const { compareLines } = require("../../backend/utils/comparator");
 
+const app = express();
 const router = express.Router();
 
-const uploadFolder = path.join(__dirname, "../uploads");
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadFolder);
-    },
-
-    filename: function (req, file, cb) {
-        const extension = path.extname(file.originalname);
-
-        const uniqueName =
-            Date.now() + "-" + Math.round(Math.random() * 1E9);
-
-        cb(null, uniqueName + extension);
-    }
-});
-
+// Keep uploads in memory (Netlify's filesystem is read-only / stateless)
 const upload = multer({
-    storage: storage
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 } // Netlify functions cap request bodies at ~6MB
 });
-
 
 /*
     VALIDATE DOCUMENT + HTML
@@ -42,11 +26,7 @@ router.post(
     ]),
     async (req, res) => {
         try {
-
-            if (!req.files ||
-                !req.files.document ||
-                !req.files.html) {
-
+            if (!req.files || !req.files.document || !req.files.html) {
                 return res.status(400).json({
                     message: "Please upload both a document and an HTML file."
                 });
@@ -55,76 +35,41 @@ router.post(
             const documentFile = req.files.document[0];
             const htmlFile = req.files.html[0];
 
-            console.log("Document:", documentFile.originalname);
-            console.log("HTML:", htmlFile.originalname);
+            const documentLines = await parseDocument(
+                documentFile.buffer,
+                documentFile.originalname
+            );
 
-            const documentLines =
-                await parseDocument(documentFile.path);
+            const htmlLines = await parseHTML(htmlFile.buffer);
 
-            const htmlLines =
-                await parseHTML(htmlFile.path);
-
-            const comparison =
-                compareLines(documentLines, htmlLines);
-
-            console.log("Comparison result:", comparison);
+            const comparison = compareLines(documentLines, htmlLines);
 
             res.json({
                 message: "Validation completed.",
                 result: comparison
             });
-
         } catch (error) {
-
             console.error("Validation error:", error);
 
             res.status(500).json({
-                message:
-                    error.message || "Validation failed."
+                message: error.message || "Validation failed."
             });
         }
     }
 );
 
-
 /*
-    DELETE UPLOADED FILES
+    DONE
+    Nothing is stored on the server, so there is nothing to delete.
 */
-router.post("/done", async (req, res) => {
-
-    try {
-
-        const files = fs.readdirSync(uploadFolder);
-
-        for (const file of files) {
-
-            const filePath =
-                path.join(uploadFolder, file);
-
-            if (fs.statSync(filePath).isFile()) {
-                fs.unlinkSync(filePath);
-            }
-        }
-
-        console.log("Uploaded files deleted.");
-
-        res.json({
-            message: "Uploaded files deleted successfully."
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Delete files error:",
-            error
-        );
-
-        res.status(500).json({
-            message:
-                "Unable to delete uploaded files."
-        });
-    }
+router.post("/done", (req, res) => {
+    res.json({ message: "Uploaded files deleted successfully." });
 });
 
+// Mount on every path Netlify might present to the function
+app.use("/api/validation", router);
+app.use("/.netlify/functions/validation", router);
+app.use("/validation", router);
+app.use("/", router);
 
-module.exports = router;
+module.exports.handler = serverless(app);

@@ -3,8 +3,11 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["pdf-parse", "mammoth"]
 
 [[redirects]]
-  from = "/api/*"
+  from = "/api/validation/*"
   to = "/.netlify/functions/validation/:splat"
   status = 200
+  force = true

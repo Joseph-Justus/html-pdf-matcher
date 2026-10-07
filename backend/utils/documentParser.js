@@ -1,17 +1,16 @@
-const fs = require("fs");
 const path = require("path");
 const { PDFParse } = require("pdf-parse");
 const mammoth = require("mammoth");
 
-async function parseDocument(filePath) {
-    const extension = path.extname(filePath).toLowerCase();
+async function parseDocument(buffer, originalName) {
+    const extension = path.extname(originalName || "").toLowerCase();
 
     if (extension === ".pdf") {
-        return await parsePDF(filePath);
+        return await parsePDF(buffer);
     }
 
     if (extension === ".docx") {
-        return await parseDOCX(filePath);
+        return await parseDOCX(buffer);
     }
 
     throw new Error(
@@ -19,11 +18,9 @@ async function parseDocument(filePath) {
     );
 }
 
-async function parsePDF(filePath) {
-    const buffer = fs.readFileSync(filePath);
-
+async function parsePDF(buffer) {
     const parser = new PDFParse({
-        data: buffer
+        data: new Uint8Array(buffer)
     });
 
     try {
@@ -35,10 +32,8 @@ async function parsePDF(filePath) {
     }
 }
 
-async function parseDOCX(filePath) {
-    const result = await mammoth.extractRawText({
-        path: filePath
-    });
+async function parseDOCX(buffer) {
+    const result = await mammoth.extractRawText({ buffer });
 
     return cleanText(result.value);
 }
