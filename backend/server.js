@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
-const validationRoutes = require("./routes/validationRoutes");
+const validationRoutes = require("../netlify/functions/validation");
 
 const app = express();
 

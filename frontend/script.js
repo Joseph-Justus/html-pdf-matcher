@@ -77,14 +77,13 @@ validateButton.addEventListener(
 
         try {
 
-            const response =
-                await fetch(
-                    "http://localhost:5050/api/validation/upload",
-                    {
-                        method: "POST",
-                        body: formData
-                    }
-                );
+const response = await fetch(
+    "/api/validation/upload",
+    {
+        method: "POST",
+        body: formData
+    }
+);
 
 
             const data =
@@ -228,13 +227,9 @@ doneButton.addEventListener(
 
 
             const response =
-                await fetch(
-                    "http://localhost:5050/api/validation/done",
-                    {
-                        method: "POST"
-                    }
-                );
-
+                await fetch("/api/validation/done", {
+    method: "POST"
+});
 
             const data =
                 await response.json();

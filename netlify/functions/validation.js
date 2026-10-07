@@ -3,9 +3,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const { parseDocument } = require("../utils/documentParser");
-const { parseHTML } = require("../utils/htmlParser");
-const { compareLines } = require("../utils/comparator");
+const { parseDocument } = require("../../backend/utils/documentParser");
+const { parseHTML } = require("../../backend/utils/htmlParser");
+const { compareLines } = require("../../backend/utils/comparator");
 
 const router = express.Router();
 
